@@ -40,7 +40,7 @@ resource functionApp 'Microsoft.Web/sites@2021-01-01' = {
         }
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
-          value: '~3'
+          value: '~4'
         }
         {
           name: 'WEBSITE_RUN_FROM_PACKAGE'
