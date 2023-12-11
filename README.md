@@ -7,6 +7,7 @@
 ## Pre-Requisites
 - Azure Subscription with contributor permissions
 - Azure CLI
+- Azure Functions Core Tools
 
 ## Infrastructure Overview
 The infrastructure is fairly simple.  We are going to use a function as a proxy between APIM and OpenAI GPT-4 API so we can generate 429 responses when needed without actually becoming rate limited.

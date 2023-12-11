@@ -16,7 +16,7 @@ var keyVaultName = 'keyvault-${resourceSuffix}'
 var openAIName = 'openai-${resourceSuffix}'
 var apimName = 'apim-${resourceSuffix}'
 var funcName = 'func-${resourceSuffix}'
-var storageName = 'sa${resourceSuffix}'
+var storageName = replace(toLower('sa${resourceSuffix}'),'-','')
 
 resource RG 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: ResourceGroupName
