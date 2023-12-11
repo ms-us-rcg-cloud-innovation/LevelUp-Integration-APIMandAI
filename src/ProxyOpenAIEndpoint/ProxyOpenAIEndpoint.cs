@@ -11,13 +11,13 @@ namespace ProxyOpenAIEndpoint
         const string _openAiUrlPathTemplate = "openai/deployments/{deployment}/completions"; 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ProxyOpenAIEndpoint(ILoggerFactory loggerFactory, IConfiguration configuration, HttpClient httpClient)
+        public ProxyOpenAIEndpoint(ILoggerFactory loggerFactory, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _logger = loggerFactory.CreateLogger<ProxyOpenAIEndpoint>();
             _configuration = configuration;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
         }
 
         [Function("ProxyOpenAIEndpoint")]
@@ -60,8 +60,11 @@ namespace ProxyOpenAIEndpoint
 
             var content = new StringContent(body);
             content.Headers.Add("api-key", apiKey);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+          
 
-            var openAiResponse = await _httpClient.PostAsync(openAiUrl, content);
+            var httpClient = _httpClientFactory.CreateClient();
+            var openAiResponse = await httpClient.PostAsync(openAiUrl, content);
             var openAiResponseContent = await openAiResponse.Content.ReadAsStringAsync();
 
             var response = req.CreateResponse(openAiResponse.StatusCode);
@@ -74,7 +77,7 @@ namespace ProxyOpenAIEndpoint
         {
             string serviceName = _configuration.GetValue<string>("AZURE_OPENAI_SERVICENAME");
             string apiVersion = _configuration.GetValue<string>("AZURE_OPENAI_APIVERSION");
-            string urlPath = string.Format(_openAiUrlPathTemplate, deployment);
+            string urlPath = string.Format(_openAiUrlPathTemplate.Replace("{deployment}", "{0}"), deployment);
             return $"https://{serviceName}.openai.azure.com/{urlPath}?api-version={apiVersion}";
         }
     }
