@@ -58,6 +58,10 @@ resource functionApp 'Microsoft.Web/sites@2021-01-01' = {
           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
           value: applicationInsightsKey
         }
+        {
+          name: 'AZURE_OPENAI_APIVERSION'
+          value: '2023-05-15'
+        }
       ]
     }
   }

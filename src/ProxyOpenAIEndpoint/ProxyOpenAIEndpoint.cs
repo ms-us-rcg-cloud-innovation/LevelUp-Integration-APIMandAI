@@ -8,7 +8,7 @@ namespace ProxyOpenAIEndpoint
 {
     public class ProxyOpenAIEndpoint
     {
-        const string _openAiUrlPathTemplate = "openai/deployments/{deployment}/completions?api-version={apiVersion}"; 
+        const string _openAiUrlPathTemplate = "openai/deployments/{deployment}/completions"; 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
@@ -23,7 +23,7 @@ namespace ProxyOpenAIEndpoint
         [Function("ProxyOpenAIEndpoint")]
         public Task<HttpResponseData> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = _openAiUrlPathTemplate)] HttpRequestData req,
-                string deployment, string apiVersion)
+                string deployment)
         {
             if (_configuration.GetValue<bool>("RETURN_429"))
             {
@@ -32,11 +32,11 @@ namespace ProxyOpenAIEndpoint
                 return Task.FromResult(response429);
             }
 
-            return ProxyToOpenAIServiceAsync(req, deployment, apiVersion);
+            return ProxyToOpenAIServiceAsync(req, deployment);
         }
 
         private async Task<HttpResponseData> ProxyToOpenAIServiceAsync(
-            HttpRequestData req, string deployment, string apiVersion)
+            HttpRequestData req, string deployment)
         {
             if (!req.Headers.TryGetValues("api-key", out IEnumerable<string>? apiKeyHeaderValues))
             {
@@ -56,7 +56,7 @@ namespace ProxyOpenAIEndpoint
                 return response400;
             }
 
-            string openAiUrl = GetOpenAIUrl(deployment, apiVersion);
+            string openAiUrl = GetOpenAIUrl(deployment);
 
             var content = new StringContent(body);
             content.Headers.Add("api-key", apiKey);
@@ -70,11 +70,12 @@ namespace ProxyOpenAIEndpoint
             return response;
         }
 
-        private string GetOpenAIUrl(string deployment, string apiVersion)
+        private string GetOpenAIUrl(string deployment)
         {
             string serviceName = _configuration.GetValue<string>("AZURE_OPENAI_SERVICENAME");
-            string urlPath = string.Format(_openAiUrlPathTemplate, deployment, apiVersion);
-            return $"https://{serviceName}.openai.azure.com/{urlPath}";
+            string apiVersion = _configuration.GetValue<string>("AZURE_OPENAI_APIVERSION");
+            string urlPath = string.Format(_openAiUrlPathTemplate, deployment);
+            return $"https://{serviceName}.openai.azure.com/{urlPath}?api-version={apiVersion}";
         }
     }
 }
