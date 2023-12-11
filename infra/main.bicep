@@ -15,6 +15,8 @@ var logAnalyticsName = 'loganalytics-${resourceSuffix}'
 var keyVaultName = 'keyvault-${resourceSuffix}'
 var openAIName = 'openai-${resourceSuffix}'
 var apimName = 'apim-${resourceSuffix}'
+var funcName = 'func-${resourceSuffix}'
+var storageName = 'sa${resourceSuffix}'
 
 resource RG 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: ResourceGroupName
@@ -64,5 +66,21 @@ module apimDeploy 'apim.bicep' = {
     resourceName: apimName
     location: location
   }
+}
+
+module functionDeploy 'functions.bicep' = {
+  name: 'function'
+  scope: RG
+  params: {
+    location: location
+    functionAppName: funcName
+    storageAccountName: storageName
+    applicationInsightsKey: appInsightsDeploy.outputs.appInsightsInstrumentationKey
+    openAiServiceName: openAIName
+  }
+  dependsOn: [
+    appInsightsDeploy
+    openAIDeploy
+  ]
 }
 
