@@ -4,6 +4,10 @@
 - Depending on product being used, hard code the system message so the response acts like either Zoltar or Magic Mirror
 - Leverage App Insights to trace/debug the system
 
+## Pre-Requisites
+- Azure Subscription with contributor permissions
+- Azure CLI
+
 ## Infrastructure Overview
 The infrastructure is fairly simple.  We are going to use a function as a proxy between APIM and OpenAI GPT-4 API so we can generate 429 responses when needed without actually becoming rate limited.
 
