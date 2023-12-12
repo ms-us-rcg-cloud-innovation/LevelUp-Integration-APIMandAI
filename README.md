@@ -20,7 +20,6 @@ The workshop will show you how to leverage APIM to manage connectivity to OpenAI
 In this workshop you will learn about the following API Management capabilities;
 - API Management Policies
 - API Management Products
-- API Management Policy Fragments
 - Configuring APIM Backends
 - Leveraging APIM variables in policies
 - Azure Open AI System Message

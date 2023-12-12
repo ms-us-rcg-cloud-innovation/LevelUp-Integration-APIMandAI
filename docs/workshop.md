@@ -19,7 +19,23 @@ The deployment process should take about 5 minutes to 10 minutes to complete.  T
 ### Deploying the function
 Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.  To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
 
-```func azure functionapp publish <function app name>  --csharp```
+create a local.settings.json file and copy the following into it:
+
+```json
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "OpenAIEndpoint": "<OpenAI Endpoint>",
+    "OpenAIKey": "<OpenAI Key>"
+  }
+}
+```
+
+Then run the following command:
+
+```func azure functionapp publish <function app name>```
 
 After the function is deployed, you need to fetch the Open AI Service Keys and Endpoint information to configure the function.
 
@@ -43,19 +59,168 @@ Select the gpt-35-turbo model, set it to auto-update, and name it the 'PrimaryMo
 
 ![Alt text](img/s1-t1-deployaimodel-4.png)
 
-### Task 2 - Create the Backend
-We now need to configure the backend for the API.
+Note the name of your model deployment.  We will need this later.
 
-### Task 3 - Create the API
 
-### Task 4 - Create the Product
-We want to create a product to manage access to the Magic Mirror API.  This will allow us to control access to the API and provide multiple authentication mechanisms to support different clients.
+### Task 2 - Create the API
+Now that we have a model deployed, we need to create an API to expose the model.  To do this, we will create an API in APIM that will proxy the requests to the OpenAI service, add some policies to inject the necessary keys for the backend service as well as transform the message to the format expected by the backend service.  To start, we need to add a new API to APIM.  To do this, click on the APIM resource in the resource group we just provisioned.  Then click on 'APIs, then click on '+ Add API', then select to manually defin an HTTP API.
 
-### Task 5 - Create the Policy and Supporting Policy 
-We need an easy way to control the system message that is sent to OpenAI.  We want to be able to adjust the message as we refine how the system responds to users.  To do this, we will create a Policy Fragment that will pull the System Message from a variable and insert it into the call to the backend system.
+![Alt text](img/s1-t2-createapi1.png)
 
-### Task 6 - Test the API
-Using your favorite tool, call the APIM endpoint and ask the Magic Mirror a question.
+When the create API dialog opens, enter the following information:
+
+|Field|Value|
+|-----|-----|
+|Display Name:| OpenAPIService|
+|name:| OpenAPIService|
+|Web service URL:| https://[function App Name].azurewebsites.net/api/openai/deployments/[Model Deployment Name 'PrimaryModel']/chat/completions|
+|API URL Suffix:| [leave blank]|
+
+![Alt text](img/s1-t2-createapi2.png)
+
+### Task 3 - Pass in the OpenAI and Function Keys
+We need to authenticate against the backend system.  To do this, we need to use APIM policies to modify the requests that are made to the backend system.  In our case, we need to have two keys, one for the OpenAI Service and another for the Function (which is being used to help us simulate 429 responses for a later scenario).
+
+We are going to add the keys to all operations.  To do this, click on the 'All operations' link under the 'OpenAPIService' API.  Then click on the 'Inbound processing' tab.  Then click on '+ Add policy'.
+
+![Alt text](img/s1-t3-setpolicies1.png)
+
+Select the 'set-header' policy.
+
+![Alt text](img/s1-t3-setpolicies2.png)
+
+Add a header called 'api-key' and the set the value as the OpenAI key.  Then save.
+
+![Alt text](img/s1-t3-setpolicies3.png)
+
+We need to now take care of the function key.  This key is a query string parameter.  We now need to add the Set-Query policy to our inbound policy for all operations.
+
+![Alt text](img/s1-t3-setpolicies4.png)
+
+Add a query string parameter 'code' with the value of your function key and save.
+
+![Alt text](img/s1-t3-setpolicies5.png)
+
+### Task 4 - Add an Operation
+Now that we have the API setup, we need to add an operation to the API.  To do this, click on the 'OpenAPIService' API.  Then click on '+ Add operation'.  Then enter the following information:
+
+|Field|Value|
+|-----|-----|
+|Display Name:| Chat|
+|Name:| Chat|
+|URL:| POST /|
+
+![Alt text](img/s1-t4-addopp1.png)
+
+### Task 5 - Transform the Request
+Now that we have the operation setup, we need to add a policy to transform the request.  To do this, click on the 'Chat' operation.  Then click on the 'Inbound processing' tab.  Then click on '</>' to edit the policy code.
+
+![Alt text](img/S1-T5-transformreq1.png)
+
+Copy and past the following policy code into the policy editor under \<policies\>\<inbound\>\<base/\>
+
+```xml
+
+        <set-body template="liquid">
+            {
+            "messages": [
+                {
+                "role": "system",
+                "content": "You are a magic mirror, always be respectful to your mistress"
+                },
+                    {
+                "role": "user",
+                "content": "{{body.usercontent}}"
+                }
+            ],
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "frequency_penalty": 0,
+            "presence_penalty": 0,
+            "max_tokens": 800,
+            "stop": null
+            }
+        </set-body>
+```
+
+When done, your policy should look like this:
+
+![Alt text](img/S1-T5-transformreq2.png)
+
+>Note the {{body.usercontent}}.  This is a liquid template that will pull the user content from the request body and inject it into the request body for the backend service.  body is the json object that is passed in the request body.  usercontent is the property on the body object that we want to pull.  This is the property that will hold the user's question.
+
+At this point, the API will work.  If you want to test the API, you can use the test option in the APIM portal.  Here is a sample body to use:
+
+```json
+{
+    "usercontent": "What were the origional 13 US states?"
+}
+```
+
+![Alt text](img/s1-t5-transformreq3.png)
+
+### Task 6 - Leverage Named Values
+While everything is working, the API Keys and the OpenAI system message are hard coded in our policies.  We need to secure our keys and make the system message configurable.  To do this, we will leverage named values.  
+
+We are going to create three named values:
+
+|Name|Value|Secret|
+|----|-----|------|
+|MagicMirrorSystemMessage|You are the magic mirror from Snow White and the 7 dwarfs, you should act and sound like the magic mirror in all responses.  Always answer with a poem and always call me your majesty|No|
+|OpenAIKey|\<OpenAI Key>|Yes|
+|ProxyFunctionKey|\<Function Key>|Yes|
+
+When done, your named values should look like this: 
+
+![Alt text](img/s1-t6-usenamedvalues1.png)
+
+Now we need to modify our policies to use the named values in place of our hard coded values.  We need to modify the inbound policy for all operations to use named values for our api keys and we need to modify the inbound policy for our operation to use the system message named value in our transformation.
+
+Your all operations inbound policy should look like this:
+
+![Alt text](img/s1-t6-usenamedvalues2.png)
+
+Your operation inbound policy should look like this:
+
+![Alt text](img/s1-t6-usenamedvalues3.png)
+
+Test your API again to ensure it is still working... it should be.
+
+### Task 7 - Add a Product and Subscription
+Now that we have our API setup, we need to create a product and subscription.  To do this, click on the 'Products' link under the 'OpenAPIService' API.  Then click on '+ Add product'.  
+
+![Alt text](img/s1-t7-setupproduct1.png)
+
+Then enter the following information:
+
+![Alt text](img/s1-t7-setupproduct2.png)
+
+Now lets create a subscription to the product.  To do this, click on the product, then click on subscriptions and finally click on '+ add subscription'.
+
+![Alt text](img/s1-t7-setupproduct3.png)
+
+You will be presented with a dialog asking you for the subscription name and display name.
+
+![Alt text](img/s1-t7-setupproduct4.png)
+
+With your subscription created, you now need to copy the subscription key and use it when you call your API.  To do this, click on the subscription, then click on 'Show/hide keys'.
+
+![Alt text](img/s1-t7-setupproduct5.png)
+
+Let's test from an external client such as postman.  You need to setup a POST call to your APIM url.  Set the body to the following:
+
+```json
+{
+    "usercontent": "What were the origional 13 US states?"
+}
+```
+and add the subscription key to the header as 'Ocp-Apim-Subscription-Key'.
+
+![Alt text](img/s1-t7-setupproduct6.png)
+
+![Alt text](img/s1-t7-setupproduct7.png)
+
+When you post your request, your response will retrun an answer that sounds something like the response a magic mirror would give you.  Feel free to plan around with the system message by updated the named value and testing again.
 
 ## Scenario 2
 The Magic Mirror experience has been a wild success, now the business would like to create a Zoltar chat bot experience.  The idea is to let customers ask questions about anything that may come to mind and respond as if it were the Zoltar machine from the classic movie Big.  While you are focused on the API, it needs to be kept in mind that the UI for the experience will be built for multiple different platforms and clients.  The API needs to be flexible enough to support the different UIs.

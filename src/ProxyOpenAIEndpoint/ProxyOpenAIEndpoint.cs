@@ -8,7 +8,7 @@ namespace ProxyOpenAIEndpoint
 {
     public class ProxyOpenAIEndpoint
     {
-        const string _openAiUrlPathTemplate = "openai/deployments/{deployment}/completions"; 
+        const string _openAiUrlPathTemplate = "openai/deployments/{deployment}/chat/completions"; 
         private readonly ILogger _logger;
         private readonly IConfiguration _configuration;
         private readonly IHttpClientFactory _httpClientFactory;
