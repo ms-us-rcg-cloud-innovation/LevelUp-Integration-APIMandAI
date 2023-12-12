@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services => {
+        services.AddHttpClient();
+        
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
     })

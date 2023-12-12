@@ -35,6 +35,10 @@ resource site 'Microsoft.Web/sites@2022-03-01' = {
           name: 'AZURE_OPENAI_SERVICENAME'
           value: openAiServiceName
         }
+        {
+          name: 'AZURE_OPENAI_APIVERSION'
+          value: '2023-05-15'
+        }
       ]
     }
     serverFarmId: hostingPlan.id
@@ -122,7 +126,8 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = {
 //           name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
 //           value: applicationInsightsKey
 //         }
-//       ]
+
+
 //     }
 //   }
 // }
