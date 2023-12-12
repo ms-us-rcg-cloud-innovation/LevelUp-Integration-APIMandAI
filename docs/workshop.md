@@ -19,7 +19,7 @@ The deployment process should take about 5 minutes to 10 minutes to complete.  T
 ### Deploying the function
 Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.  To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
 
-```func azure functionapp publish <function app name>```
+```func azure functionapp publish <function app name>  --csharp```
 
 After the function is deployed, you need to fetch the Open AI Service Keys and Endpoint information to configure the function.
 
@@ -27,7 +27,21 @@ After the function is deployed, you need to fetch the Open AI Service Keys and E
 The business is intending to promote their capabilities by creating a magic mirror chat bot experience.  The idea is to let customers ask questions about anything that may come to mind and respond as if it were the magic mirror from the classic movie Snow White and the 7 Dwarfs.  While you are focused on the API, it needs to be kept in mind that the UI for the experience will be built for multiple different platforms and clients.  The API needs to be flexible enough to support the different UIs.
 
 ### Task 1 - Deploy the Open AI Model
-First we need to deploy a model to our Open AI service.
+First we need to deploy a model to our Open AI service.  Click on the Azure OpenAI resource in resource group we just provisioned.  Then click on 'Model Deployments'
+
+![Alt text](img/s1-t1-deployaimodel-1.png)
+
+Click on 'Manage Deployments'
+
+![Alt text](img/s1-t1-deployaimodel-2.png)
+
+This will open the Azure AI Studio.  Click on 'Create new deployment'
+
+![Alt text](img/s1-t1-deployaimodel-3.png)
+
+Select the gpt-35-turbo model, set it to auto-update, and name it the 'PrimaryModel'
+
+![Alt text](img/s1-t1-deployaimodel-4.png)
 
 ### Task 2 - Create the Backend
 We now need to configure the backend for the API.
