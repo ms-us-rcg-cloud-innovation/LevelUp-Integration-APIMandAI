@@ -157,6 +157,8 @@ At this point, the API will work.  If you want to test the API, you can use the 
 }
 ```
 
+>NOTE: I forgot to set the content type to application/json in the screenshot below.  Make sure to set the content type to application/json.  If you don't, the liquid template will not be able to find the usercontent property and you won't get an answer.
+
 ![Alt text](img/s1-t5-transformreq3.png)
 
 ### Task 6 - Leverage Named Values
@@ -480,3 +482,5 @@ Make sure to save your settings.
 
 Now, test the API again using tracing.  You should see that the request is being retried and the response is coming from the failover model.
 
+## Clean Up
+The easiest way to clean up is to simply delete the resource group.  This will delete all the resources that were created.  However, the KeyVault and the OpenAI Service are soft deleted.  If you want to completely remove them immediately, you will need to purge the resources.  If you don't plan on redeploying, they will eventually be deleted automatically.
