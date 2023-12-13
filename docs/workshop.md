@@ -363,6 +363,27 @@ Using the portals test feature, test the API using the Magic Mirror product and 
 Well... that didn't last long.  The campaign has been wildly successful and the business is now seeing a huge spike in traffic.  This is causing the OpenAI service to be throttled and return 429 respsponses.  The business is not happy and is demanding that you fix the problem immediately as they are getting negative feedback from customers.
 
 ### Task 1 - Deploy a new OpenAI Model
+The first thing we need to do is deploy a new model.  To do this, click on the Azure OpenAI resource in resource group.  Then click on 'Model Deployments'
 
-### Task 2 - Create a new Backend in APIM
+>Note: we are using the same openAI service, but we could use a different service if we wanted to.
+
+>Note: we are not going to use the proxy function for the fail over model so the url will be slightly different.
+
+- Image of model deployment
+
+- Sample url
+
+### Task 2 - Refactor the backend service to failover
+
+- add the backend policy
+
+- explain why we need to add the query string parameter for api version
+
+### Task 3 - Test the failover
+
+- First verify it still works as expected
+
+- modify the function config to generate 429 responses
+
+- test again and using the trace capabilities in APIM, show that it is failing over
 
