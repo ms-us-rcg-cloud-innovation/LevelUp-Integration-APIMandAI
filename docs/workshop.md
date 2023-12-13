@@ -357,6 +357,11 @@ When complete, your policy should look like this:
 ### Task 4 - Subscribe to the Zoltar Product
 In case you want to call the service from postman, you will need to subscribe to the Zoltar product.  To do this, click on the 'Zoltar' product.  Then click on subscriptions and finally click on '+ add subscription'.
 
+|Field|Value|
+|-----|-----|
+|Name:| zoltartestsub|
+|Display Name:| zoltartestsub|
+
 ![Alt text](img/s2-t4-subscribetozoltar1.png)
 
 ![Alt text](img/s2-t4-subscribetozoltar2.png)
