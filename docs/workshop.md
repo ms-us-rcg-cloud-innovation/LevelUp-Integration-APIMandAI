@@ -367,23 +367,97 @@ The first thing we need to do is deploy a new model.  To do this, click on the A
 
 >Note: we are using the same openAI service, but we could use a different service if we wanted to.
 
->Note: we are not going to use the proxy function for the fail over model so the url will be slightly different.
+![Alt text](img/S3-T1-ModelDeploy1.png)
 
-- Image of model deployment
+![Alt text](img/S3-T1-ModelDeploy2.png)
 
-- Sample url
+![Alt text](img/S3-T1-ModelDeploy3.png)
+
+We are not going to use the proxy function for the fail over model so the url will be slightly different.  To find the base URL, go to the OpenAI service and click on 'Keys and endpoints'.  Then copy the 'Endpoint' value.
+
+![Alt text](img/s3-t1-modeldeploy4.png)
+
+![Alt text](img/s3-t1-modeldeploy5.png)
+
+The URL will be the following:
+
+```https://<OpenAI Endpoint>/openai/deployments/FailOverModel/chat/completions```
+
+FailOverModel is the name of the model deployment we just created, if you named it something else, use that name instead.
 
 ### Task 2 - Refactor the backend service to failover
 
-- add the backend policy
+Go back to your API Management resources and click APIs, then click the '</>' to edit the policy code for the 'All Operations'.   
 
-- explain why we need to add the query string parameter for api version
+![Alt text](img/s3-t2-refactorbackend1.png)
+
+Add the following code to the backend section of the policy making sure to edit the base-url to match your OpenAI endpoint:
+
+```xml
+        <retry condition="@(context.Response.StatusCode == 429)" count="1" interval="0" max-interval="1" delta="1" first-fast-retry="false">
+            <!-- forward request and request body is stored for retry -->
+            <forward-request buffer-request-body="true" />
+            <set-backend-service base-url="https://<YOUR ENDPOINT>/openai/deployments/FailOverModel/chat/completions" />
+            <set-query-parameter name="api-version" exists-action="override">
+                <value>2023-07-01-preview</value>
+            </set-query-parameter>
+        </retry>
+```
+    
+When done, your policy should look like this:
+
+![Alt text](img/s3-t2-refactorbackend2.png)
+
+>NOTE: Lines 28,29,30 are adding the api-version query string parameter.  This is required to call the OpenAI service.  We had the Proxy Function add this for the primary model, but we are not using the proxy function for the failover model so we need to add it here.  We will most likely refactor the function so we consistantly add the query string parameter in the future.
+
+Here is an explanation of the retry policyCourtesy of GitHub CoPilot:
+
+Here's a breakdown of what it does:
+
+- \<retry>: This policy is used to automatically retry an operation upon failure. The operation is retried based on the conditions specified in the policy.
+
+- condition="@(context.Response.StatusCode == 429)": This specifies the condition under which the operation should be retried. In this case, it's when the HTTP status code of the response is 429, which typically means "Too Many Requests" - the user has sent too many requests in a given amount of time.
+
+- count="1": This is the number of retry attempts. Here, it's set to 1, meaning the operation will be retried once if it fails.
+
+- interval="0" max-interval="1" delta="1": These parameters control the retry interval. In this case, the retry will happen immediately (interval="0"), with a maximum interval of 1 second (max-interval="1"), and a delta of 1 second (delta="1"). The delta is used to increase the interval between retries for each subsequent retry.
+
+- first-fast-retry="false": This indicates whether the first retry should happen immediately without any delay. Here, it's set to false, meaning there will be a delay before the first retry.
+
+- \<forward-request buffer-request-body="true" />: This forwards the request to the backend service. The buffer-request-body="true" attribute means that the request body will be stored and sent again in case of a retry.
+
+- \<set-backend-service base-url="https://<YOUR ENDPOINT>/openai/deployments/FailOverModel/chat/completions" />: This sets the backend service to which the request will be forwarded. You should replace \<YOUR ENDPOINT> with your actual endpoint.
+
+- \<set-query-parameter name="api-version" exists-action="override">: This sets a query parameter api-version in the request. If this parameter already exists, it will be overridden (exists-action="override").
+
+- \<value>2023-07-01-preview\</value>: This sets the value of the api-version query parameter to 2023-07-01-preview.
+
+In summary, this policy will retry the request once if it receives a 429 status code from the backend service. The request will be forwarded to the specified backend service with the specified query parameter.
+
 
 ### Task 3 - Test the failover
+First, let's verify that everything still works as expected.  Use the portal test capabilities to trace the request and verify that it is calling the primary model.  Test for both the Magic Mirror Product and the Zoltar Product.  
 
-- First verify it still works as expected
+Here is a sample payload to use:
+```json
+{
+"usercontent":"what were the origional 13 us states"
+}
+```
 
-- modify the function config to generate 429 responses
+Also, remember to set the content type to application/json.  This is needed for the liquid template to find the usercontent property.
 
-- test again and using the trace capabilities in APIM, show that it is failing over
+Once you have verified that everything is working as expected, we need to test the failover.  To do this, we need to modify the function to return 429 responses.  To do this, go to the function app and click on configuration.
+
+![Alt text](img/s3-t3-failovertest1.png)
+
+Click the edit button for the RETURN_429 key and change the value to true.
+
+![Alt text](img/s3-t3-failovertest2.png)
+
+![Alt text](img/s3-t3-failovertest3.png)
+
+Make sure to save your settings.
+
+Now, test the API again using tracing.  You should see that the request is being retried and the response is coming from the failover model.
 

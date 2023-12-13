@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1B0025B9-78C9-4213-9785-3F8D92684BD2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProxyOpenAIEndpoint", "src\ProxyOpenAIEndpoint\ProxyOpenAIEndpoint.csproj", "{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{AE9EBDF5-EAC9-4FD6-82F2-AFFF057BF31B} = {1B0025B9-78C9-4213-9785-3F8D92684BD2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7ED4D28E-8510-4C82-A399-97F641095B6A}
+	EndGlobalSection
+EndGlobal
