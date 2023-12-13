@@ -17,7 +17,7 @@ The deployment process should take about 5 minutes to 10 minutes to complete.  T
 - Azure Log Analytics Workspace
 
 ### Deploying the function
-Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.  To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
+Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.
 
 create a local.settings.json file in the ```src\ProxyOpenAIEndpoint`` folder and copy the following into it:
 
@@ -33,7 +33,7 @@ create a local.settings.json file in the ```src\ProxyOpenAIEndpoint`` folder and
 }
 ```
 
-Then run the following command:
+To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
 
 ```func azure functionapp publish <function app name>```
 
