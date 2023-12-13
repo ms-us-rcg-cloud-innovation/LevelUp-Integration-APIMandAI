@@ -17,9 +17,9 @@ The deployment process should take about 5 minutes to 10 minutes to complete.  T
 - Azure Log Analytics Workspace
 
 ### Deploying the function
-Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.  To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
+Once the infrastructure has been deployed, you need to deploy the function.  The function is responsible for proxying requests to OpenAI so that we can simulate 429 responses.
 
-create a local.settings.json file and copy the following into it:
+create a local.settings.json file in the ```src\ProxyOpenAIEndpoint`` folder and copy the following into it:
 
 ```json
 {
@@ -33,7 +33,7 @@ create a local.settings.json file and copy the following into it:
 }
 ```
 
-Then run the following command:
+To deploy the function, run the following command from the ```src\ProxyOpenAIEndpoint``` folder:
 
 ```func azure functionapp publish <function app name>```
 
@@ -167,7 +167,7 @@ We are going to create three named values:
 |Name|Value|Secret|
 |----|-----|------|
 |MagicMirrorSystemMessage|You are the magic mirror from Snow White and the 7 dwarfs, you should act and sound like the magic mirror in all responses.  Always answer with a poem and always call me your majesty|No|
-|OpenAIKey|\<OpenAI Key>|Yes|
+|OpenAIServiceKey|\<OpenAI Key>|Yes|
 |ProxyFunctionKey|\<Function Key>|Yes|
 
 When done, your named values should look like this: 
@@ -193,6 +193,15 @@ Now that we have our API setup, we need to create a product and subscription.  T
 
 Then enter the following information:
 
+|Field|Value|
+|-----|-----|
+|Display Name:| Magic Mirror|
+|Id:| magic-mirror|
+|Description:| Access to the Magic Mirror Chat Service|
+|Subscription required:| Yes|
+|State:| Published|
+|APIs:| OpenAPIService|
+
 ![Alt text](img/s1-t7-setupproduct2.png)
 
 Now lets create a subscription to the product.  To do this, click on the product, then click on subscriptions and finally click on '+ add subscription'.
@@ -200,6 +209,11 @@ Now lets create a subscription to the product.  To do this, click on the product
 ![Alt text](img/s1-t7-setupproduct3.png)
 
 You will be presented with a dialog asking you for the subscription name and display name.
+
+|Field|Value|
+|-----|-----|
+|Name:| testsubscription|
+|Display Name:| testsubscription|
 
 ![Alt text](img/s1-t7-setupproduct4.png)
 
@@ -342,6 +356,11 @@ When complete, your policy should look like this:
 
 ### Task 4 - Subscribe to the Zoltar Product
 In case you want to call the service from postman, you will need to subscribe to the Zoltar product.  To do this, click on the 'Zoltar' product.  Then click on subscriptions and finally click on '+ add subscription'.
+
+|Field|Value|
+|-----|-----|
+|Name:| zoltartestsub|
+|Display Name:| zoltartestsub|
 
 ![Alt text](img/s2-t4-subscribetozoltar1.png)
 
