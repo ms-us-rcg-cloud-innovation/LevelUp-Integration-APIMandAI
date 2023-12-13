@@ -193,6 +193,11 @@ Now that we have our API setup, we need to create a product and subscription.  T
 
 Then enter the following information:
 
+|Field|Value|
+|-----|-----|
+|Display Name:| Magic Mirror|
+|Name:| magic-mirror|
+
 ![Alt text](img/s1-t7-setupproduct2.png)
 
 Now lets create a subscription to the product.  To do this, click on the product, then click on subscriptions and finally click on '+ add subscription'.
