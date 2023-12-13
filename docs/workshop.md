@@ -196,7 +196,11 @@ Then enter the following information:
 |Field|Value|
 |-----|-----|
 |Display Name:| Magic Mirror|
-|Name:| magic-mirror|
+|Id:| magic-mirror|
+|Description:| Access to the Magic Mirror Chat Service|
+|Subscription required:| Yes|
+|State:| Published|
+|APIs:| OpenAPIService|
 
 ![Alt text](img/s1-t7-setupproduct2.png)
 
@@ -205,6 +209,11 @@ Now lets create a subscription to the product.  To do this, click on the product
 ![Alt text](img/s1-t7-setupproduct3.png)
 
 You will be presented with a dialog asking you for the subscription name and display name.
+
+|Field|Value|
+|-----|-----|
+|Name:| testsubscription|
+|Display Name:| testsubscription|
 
 ![Alt text](img/s1-t7-setupproduct4.png)
 
