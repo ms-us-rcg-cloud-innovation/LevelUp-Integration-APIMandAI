@@ -167,7 +167,7 @@ We are going to create three named values:
 |Name|Value|Secret|
 |----|-----|------|
 |MagicMirrorSystemMessage|You are the magic mirror from Snow White and the 7 dwarfs, you should act and sound like the magic mirror in all responses.  Always answer with a poem and always call me your majesty|No|
-|OpenAIKey|\<OpenAI Key>|Yes|
+|OpenAIServiceKey|\<OpenAI Key>|Yes|
 |ProxyFunctionKey|\<Function Key>|Yes|
 
 When done, your named values should look like this: 
