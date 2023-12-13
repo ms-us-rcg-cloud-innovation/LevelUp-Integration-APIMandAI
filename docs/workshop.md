@@ -226,13 +226,138 @@ When you post your request, your response will retrun an answer that sounds some
 The Magic Mirror experience has been a wild success, now the business would like to create a Zoltar chat bot experience.  The idea is to let customers ask questions about anything that may come to mind and respond as if it were the Zoltar machine from the classic movie Big.  While you are focused on the API, it needs to be kept in mind that the UI for the experience will be built for multiple different platforms and clients.  The API needs to be flexible enough to support the different UIs.
 
 ### Task 1 - Create the product
-Since the model has already been deployed, we can leverage the same model for the Zoltar experience.  First up, we will create a product for the Zoltar experience.
+Since the model has already been deployed, we can leverage the same model for the Zoltar experience.  First up, we will create a product for the Zoltar experience.  Go to the APIM resource and click on 'Products'.  Then click on '+ Add product'.  
 
-### Task 2 - Refactor the Policy to support both Products
-Next, we need to setup a new variable to hold the system message for Zoltar and then update the policy to use either the Zoltar or Magic Mirror system message based on the product being used.
+![Alt text](img/s2-t1-createproduct1.png)
 
-### Task 3 - Test the APIs
-Again, using your favorite tool, call the APIM endpoint with the Zoltar subscription key and verify the response is coming from Zoltar.  Then call the APIM endpoint with the Magic Mirror subscription key and verify the response is coming from the Magic Mirror.
+Then enter the following information:
+
+|Field|Value|
+|-----|-----|
+|Display Name:| Zoltar|
+|Id:| Zoltar|
+|Description:| This product will respond as if is the Zoltar Machine|
+|Subscription required:| Yes|
+|State:| Published|
+|APIs:| OpenAPIService|
+
+
+![Alt text](img/s2-t1-createproduct2.png)
+
+### Task 2 - create the 'Named Value' for the system message
+Click on Named Values and then click on '+ Add named value'.  
+
+![Alt text](img/s2-t2-NamedValue1.png)
+
+Then enter the following information:
+
+|Field|Value|
+|-----|-----|
+|Name:| ZoltarSystemMessage|
+|Display Name:| ZoltarSystemMessage|
+|Value:| You are the machine ZOLTAR from the movie big.  You answer peoples questions and wishes.  Your answers should be short and simple, something that would fit on a small card.|
+
+![Alt text](img/s2-t2-NamedValue2.png)
+
+When done, you should have the following:
+
+![Alt text](img/s2-t2-NamedValue3.png)
+
+
+
+
+### Task 3 - Refactor the Policy to support both Products
+Next, we need to refactor the API to support both products.  To do this, we will modify the inbound policy on the chat operation to inspect the context and determine which product is being called.  If the Zoltar product is being called, we will use the Zoltar system message, otherwise we will use the Magic Mirror system message.  To do this, click on the 'Chat' operation.  Then click on the 'Inbound processing' tab.  Then click on '</>' to edit the policy code.
+
+![Alt text](img/s2-t3-refactorpolicy1.png)
+
+Replace the policy code with the following xml:
+
+```xml
+<policies>
+    <inbound>
+        <base />
+        <choose>
+            <when condition="@(context.Product.Id.Equals("magic-mirror"))">
+                <set-body template="liquid">
+                    {
+                    "messages": [
+                        {
+                        "role": "system",
+                        "content": "{{MagicMirrorSystemMessage}}"
+                        },
+                            {
+                        "role": "user",
+                        "content": "{{body.usercontent}}"
+                        }
+                    ],
+                    "temperature": 0.7,
+                    "top_p": 0.95,
+                    "frequency_penalty": 0,
+                    "presence_penalty": 0,
+                    "max_tokens": 800,
+                    "stop": null
+                    }
+                </set-body>
+            </when>
+            <when condition="@(context.Product.Id.Equals("zoltar"))">
+                <set-body template="liquid">
+                    {
+                    "messages": [
+                        {
+                        "role": "system",
+                        "content": "{{ZoltarSystemMessage}}"
+                        },
+                            {
+                        "role": "user",
+                        "content": "{{body.usercontent}}"
+                        }
+                    ],
+                    "temperature": 0.7,
+                    "top_p": 0.95,
+                    "frequency_penalty": 0,
+                    "presence_penalty": 0,
+                    "max_tokens": 800,
+                    "stop": null
+                    }
+                </set-body>
+            </when>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
+```
+
+When complete, your policy should look like this:
+
+![Alt text](img/s2-t3-refactorpolicy2.png)
+
+### Task 4 - Subscribe to the Zoltar Product
+In case you want to call the service from postman, you will need to subscribe to the Zoltar product.  To do this, click on the 'Zoltar' product.  Then click on subscriptions and finally click on '+ add subscription'.
+
+![Alt text](img/s2-t4-subscribetozoltar1.png)
+
+![Alt text](img/s2-t4-subscribetozoltar2.png)
+
+![Alt text](img/s2-t4-subscribetozoltar3.png)
+
+You will want to copy the subscription key and use it when you call your API.  To do this, click on the subscription, then click on 'Show/hide keys'.
+
+![Alt text](img/s2-t4-subscribetozoltar4.png)
+
+
+### Task 5 - Test the APIs
+Using the portals test feature, test the API using the Magic Mirror product and the Zoltar product.  You should see different responses based on the product you are using.  Make sure to select the appropriate product when testing as it defaults to none, and make sure to set the content type to application/json.
+
+![Alt text](img/s2-t5-testapi1.png)
 
 ## Scenario 3
 Well... that didn't last long.  The campaign has been wildly successful and the business is now seeing a huge spike in traffic.  This is causing the OpenAI service to be throttled and return 429 respsponses.  The business is not happy and is demanding that you fix the problem immediately as they are getting negative feedback from customers.

@@ -39,6 +39,10 @@ resource site 'Microsoft.Web/sites@2022-03-01' = {
           name: 'AZURE_OPENAI_APIVERSION'
           value: '2023-05-15'
         }
+        {
+          name: 'RETURN_429'
+          value: 'false'
+        }
       ]
     }
     serverFarmId: hostingPlan.id
