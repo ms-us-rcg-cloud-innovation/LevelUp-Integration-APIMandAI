@@ -42,6 +42,8 @@ After the function is deployed, you need to fetch the Open AI Service Keys and E
 ## Scenario 1
 The business is intending to promote their capabilities by creating a magic mirror chat bot experience.  The idea is to let customers ask questions about anything that may come to mind and respond as if it were the magic mirror from the classic movie Snow White and the 7 Dwarfs.  While you are focused on the API, it needs to be kept in mind that the UI for the experience will be built for multiple different platforms and clients.  The API needs to be flexible enough to support the different UIs.
 
+>If you are interested, you can see a clip of the magic mirror from the movie Snow White and the 7 Dwarfs [here](https://www.youtube.com/watch?v=OWflyssB9i8)
+
 ### Task 1 - Deploy the Open AI Model
 First we need to deploy a model to our Open AI service.  Click on the Azure OpenAI resource in resource group we just provisioned.  Then click on 'Model Deployments'
 
@@ -240,6 +242,8 @@ When you post your request, your response will retrun an answer that sounds some
 
 ## Scenario 2
 The Magic Mirror experience has been a wild success, now the business would like to create a Zoltar chat bot experience.  The idea is to let customers ask questions about anything that may come to mind and respond as if it were the Zoltar machine from the classic movie Big.  While you are focused on the API, it needs to be kept in mind that the UI for the experience will be built for multiple different platforms and clients.  The API needs to be flexible enough to support the different UIs.
+
+>If you are interested, you can see a clip of the Zoltar machine from the movie Big [here](https://www.youtube.com/watch?v=Q6RK4479XD8)
 
 ### Task 1 - Create the product
 Since the model has already been deployed, we can leverage the same model for the Zoltar experience.  First up, we will create a product for the Zoltar experience.  Go to the APIM resource and click on 'Products'.  Then click on '+ Add product'.  
